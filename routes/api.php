@@ -1,8 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProductCategoryController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StoreController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -15,13 +18,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/stores/{store}', [StoreController::class, 'show']);
 
     Route::middleware('store.access')->group(function () {
-        Route::get('/current-store', function (\Illuminate\Http\Request $request) {
+        Route::get('/current-store', function (Request $request) {
             return response()->json([
                 'success' => true,
                 'data' => $request->attributes->get('active_store'),
             ]);
         });
 
-        // Nanti taruh endpoint POS / products / stocks di sini
+        Route::middleware('store.access')->group(function () {
+            Route::apiResource('products', ProductController::class);
+        });
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::apiResource('product-categories', ProductCategoryController::class);
+        });
     });
 });
