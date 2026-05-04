@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Auth\AuthenticationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,5 +14,22 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle token invalid / expired
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 'TOKEN_EXPIRED',
+                'message' => 'Token expired or invalid. Please login again.'
+            ], 401);
+        });
+
+        // Handle error umum biar gak HTML
+        $exceptions->render(function (Throwable $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+        });
     })->create();
