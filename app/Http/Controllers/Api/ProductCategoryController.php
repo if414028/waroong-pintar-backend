@@ -71,6 +71,7 @@ class ProductCategoryController extends Controller
             ], 422);
         }
 
+        /** @disregard */
         $productCategory->delete();
 
         return response()->json([

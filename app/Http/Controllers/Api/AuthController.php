@@ -73,6 +73,7 @@ class AuthController extends Controller
         $token = $request->user()->currentAccessToken();
 
         if ($token) {
+            /** @disregard */
             $token->delete();
         }
 
