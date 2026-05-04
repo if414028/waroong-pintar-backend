@@ -13,4 +13,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/stores', [StoreController::class, 'index']);
     Route::post('/stores', [StoreController::class, 'store']);
     Route::get('/stores/{store}', [StoreController::class, 'show']);
+
+    Route::middleware('store.access')->group(function () {
+        Route::get('/current-store', function (\Illuminate\Http\Request $request) {
+            return response()->json([
+                'success' => true,
+                'data' => $request->attributes->get('active_store'),
+            ]);
+        });
+
+        // Nanti taruh endpoint POS / products / stocks di sini
+    });
 });
