@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductCategoryController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\SaleController;
 use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\Api\StockMovementController;
 use App\Http\Controllers\Api\StoreController;
@@ -36,5 +37,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stocks/{product}', [StockController::class, 'show']);
 
         Route::get('/stock-movements', [StockMovementController::class, 'index']);
+
+        Route::apiResource('sales', SaleController::class)->only([
+            'index',
+            'store',
+            'show',
+        ]);
     });
 });
