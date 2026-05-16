@@ -102,7 +102,9 @@ class CreateSaleService
                 'grand_total' => $grandTotal,
                 'paid_amount' => $paidAmount,
                 'change_amount' => $paidAmount - $grandTotal,
-                'status' => 'completed',
+                'status' => $paidAmount >= $grandTotal
+                    ? 'paid'
+                    : ($paidAmount > 0 ? 'partially_paid' : 'unpaid'),
                 'sold_at' => now(),
             ]);
 

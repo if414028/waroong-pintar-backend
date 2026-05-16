@@ -40,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stock-movements', [StockMovementController::class, 'index']);
 
         Route::post('/sales/{sale}/void', [SaleController::class, 'void']);
+        Route::get('/sales/{sale}/receipt', [SaleController::class, 'receipt']);
+        Route::patch('/sales/{sale}/payment-status', [SaleController::class, 'updatePaymentStatus']);
 
         Route::apiResource('sales', SaleController::class)->only([
             'index',
