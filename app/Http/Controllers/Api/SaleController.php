@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Sale;
 use App\Services\CreateSaleService;
+use App\Services\VoidSaleService;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
@@ -69,6 +70,28 @@ class SaleController extends Controller
         return response()->json([
             'success' => true,
             'data' => $sale->load(['store', 'cashier', 'items.product', 'payments']),
+        ]);
+    }
+
+    public function void(Request $request, Sale $sale, VoidSaleService $service)
+    {
+        $store = $request->attributes->get('active_store');
+
+        $data = $request->validate([
+            'reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $sale = $service->handle(
+            sale: $sale,
+            store: $store,
+            user: $request->user(),
+            reason: $data['reason'] ?? null
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transaksi berhasil dibatalkan dan stok dikembalikan.',
+            'data' => $sale,
         ]);
     }
 }

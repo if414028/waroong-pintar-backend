@@ -38,6 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/stock-movements', [StockMovementController::class, 'index']);
 
+        Route::post('/sales/{sale}/void', [SaleController::class, 'void']);
+
         Route::apiResource('sales', SaleController::class)->only([
             'index',
             'store',
