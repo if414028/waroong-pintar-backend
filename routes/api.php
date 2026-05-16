@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\StockMovementController;
 use App\Http\Controllers\Api\StoreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ReportController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -45,5 +46,11 @@ Route::middleware('auth:sanctum')->group(function () {
             'store',
             'show',
         ]);
+
+        Route::prefix('reports')->group(function () {
+            Route::get('/sales-summary', [ReportController::class, 'salesSummary']);
+            Route::get('/top-products', [ReportController::class, 'topProducts']);
+            Route::get('/low-stocks', [ReportController::class, 'lowStocks']);
+        });
     });
 });
