@@ -36,10 +36,13 @@ Route::middleware('auth:sanctum')->group(function () {
             ]);
         });
 
-        Route::apiResource('products', ProductController::class);
-        Route::post('/store-products/attach', [StoreProductController::class, 'attach']);
+        Route::apiResource('products', ProductController::class)
+            ->middlewareFor('store', 'subscription.limit:products');
+        Route::post('/store-products/attach', [StoreProductController::class, 'attach'])
+            ->middleware('subscription.limit:products');
         Route::patch('/store-products/{product}/detach', [StoreProductController::class, 'detach']);
-        Route::patch('/store-products/{product}/activate', [StoreProductController::class, 'activate']);
+        Route::patch('/store-products/{product}/activate', [StoreProductController::class, 'activate'])
+            ->middleware('subscription.limit:products');
 
         Route::post('/stocks/adjustment', [StockController::class, 'adjustment']);
         Route::get('/stocks', [StockController::class, 'index']);
@@ -57,10 +60,12 @@ Route::middleware('auth:sanctum')->group(function () {
             'show',
         ]);
 
-        Route::prefix('reports')->group(function () {
-            Route::get('/sales-summary', [ReportController::class, 'salesSummary']);
-            Route::get('/top-products', [ReportController::class, 'topProducts']);
-            Route::get('/low-stocks', [ReportController::class, 'lowStocks']);
-        });
+        Route::prefix('reports')
+            ->middleware('subscription.feature:advanced_reports')
+            ->group(function () {
+                Route::get('/sales-summary', [ReportController::class, 'salesSummary']);
+                Route::get('/top-products', [ReportController::class, 'topProducts']);
+                Route::get('/low-stocks', [ReportController::class, 'lowStocks']);
+            });
     });
 });

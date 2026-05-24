@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'store.access' => \App\Http\Middleware\EnsureUserHasStoreAccess::class,
             'subscription.active' => \App\Http\Middleware\EnsureStoreSubscriptionIsActive::class,
+            'subscription.feature' => \App\Http\Middleware\EnsureSubscriptionFeatureIsEnabled::class,
+            'subscription.limit' => \App\Http\Middleware\EnsureSubscriptionResourceLimit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
