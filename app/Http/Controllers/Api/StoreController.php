@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\SubscriptionPlan;
+use App\Models\StoreSubscription;
 
 class StoreController extends Controller
 {
@@ -13,6 +15,9 @@ class StoreController extends Controller
     {
         $stores = $request->user()
             ->stores()
+            ->with([
+                'activeSubscription.plan',
+            ])
             ->withPivot('role_in_store')
             ->get();
 
@@ -47,10 +52,23 @@ class StoreController extends Controller
             'role_in_store' => 'owner',
         ]);
 
+        /** @disregard */
+        $basicPlan = SubscriptionPlan::where('code', 'basic')->first();
+
+        if ($basicPlan) {
+            StoreSubscription::create([
+                'store_id' => $store->id,
+                'subscription_plan_id' => $basicPlan->id,
+                'status' => 'active',
+                'starts_at' => now(),
+                'ends_at' => now()->addMonth(),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Store berhasil dibuat.',
-            'data' => $store->load('users'),
+            'data' => $store->load(['users', 'activeSubscription.plan']),
         ], 201);
     }
 
@@ -70,7 +88,11 @@ class StoreController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $store->load(['owner', 'users']),
+            'data' => $store->load([
+                'owner',
+                'users',
+                'activeSubscription.plan',
+            ]),
         ]);
     }
 }

@@ -82,4 +82,21 @@ class Store extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    public function subscription()
+    {
+        return $this->hasOne(StoreSubscription::class)
+            ->latestOfMany();
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(StoreSubscription::class)
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('ends_at')
+                    ->orWhere('ends_at', '>', now());
+            })
+            ->latestOfMany();
+    }
 }

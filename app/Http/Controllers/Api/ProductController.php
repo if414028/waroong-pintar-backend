@@ -16,8 +16,10 @@ class ProductController extends Controller
 
         $products = Product::query()
             ->with(['category'])
+            ->where('status', 'active')
             ->whereHas('stores', function ($query) use ($store) {
-                $query->where('stores.id', $store->id);
+                $query->where('stores.id', $store->id)
+                    ->where('store_products.is_active', true);
             })
             ->with([
                 'stores' => function ($query) use ($store) {
@@ -26,7 +28,7 @@ class ProductController extends Controller
                 },
                 'stocks' => function ($query) use ($store) {
                     $query->where('store_id', $store->id);
-                }
+                },
             ])
             ->latest()
             ->get();
@@ -94,7 +96,7 @@ class ProductController extends Controller
             ->where('stores.id', $store->id)
             ->exists();
 
-        if (!$hasProduct) {
+        if (! $hasProduct) {
             return response()->json([
                 'success' => false,
                 'message' => 'Product tidak ditemukan di store ini.',
@@ -109,7 +111,7 @@ class ProductController extends Controller
             },
             'stocks' => function ($query) use ($store) {
                 $query->where('store_id', $store->id);
-            }
+            },
         ]);
 
         return response()->json([
@@ -126,7 +128,7 @@ class ProductController extends Controller
             ->where('stores.id', $store->id)
             ->exists();
 
-        if (!$hasProduct) {
+        if (! $hasProduct) {
             return response()->json([
                 'success' => false,
                 'message' => 'Product tidak ditemukan di store ini.',
@@ -135,8 +137,8 @@ class ProductController extends Controller
 
         $data = $request->validate([
             'category_id' => ['nullable', 'exists:product_categories,id'],
-            'sku' => ['sometimes', 'string', 'max:255', 'unique:products,sku,' . $product->id],
-            'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode,' . $product->id],
+            'sku' => ['sometimes', 'string', 'max:255', 'unique:products,sku,'.$product->id],
+            'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode,'.$product->id],
             'name' => ['sometimes', 'string', 'max:255'],
             'unit' => ['sometimes', 'string', 'max:50'],
             'purchase_price' => ['sometimes', 'numeric', 'min:0'],
@@ -195,7 +197,7 @@ class ProductController extends Controller
             ->where('stores.id', $store->id)
             ->exists();
 
-        if (!$hasProduct) {
+        if (! $hasProduct) {
             return response()->json([
                 'success' => false,
                 'message' => 'Product tidak ditemukan di store ini.',

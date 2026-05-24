@@ -3,13 +3,14 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductCategoryController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SaleController;
 use App\Http\Controllers\Api\StockController;
 use App\Http\Controllers\Api\StockMovementController;
 use App\Http\Controllers\Api\StoreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\StoreProductController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -23,15 +24,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('product-categories', ProductCategoryController::class);
 
-    Route::middleware('store.access')->group(function () {
+    Route::middleware(['store.access', 'subscription.active'])->group(function () {
         Route::get('/current-store', function (Request $request) {
             return response()->json([
                 'success' => true,
-                'data' => $request->attributes->get('active_store'),
+                'data' => [
+                    'store' => $request->attributes->get('active_store'),
+                    'subscription' => $request->attributes->get('active_subscription'),
+                    'plan' => $request->attributes->get('active_plan'),
+                ],
             ]);
         });
 
         Route::apiResource('products', ProductController::class);
+        Route::post('/store-products/attach', [StoreProductController::class, 'attach']);
+        Route::patch('/store-products/{product}/detach', [StoreProductController::class, 'detach']);
+        Route::patch('/store-products/{product}/activate', [StoreProductController::class, 'activate']);
 
         Route::post('/stocks/adjustment', [StockController::class, 'adjustment']);
         Route::get('/stocks', [StockController::class, 'index']);

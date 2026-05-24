@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'store.access' => \App\Http\Middleware\EnsureUserHasStoreAccess::class,
+            'subscription.active' => \App\Http\Middleware\EnsureStoreSubscriptionIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
